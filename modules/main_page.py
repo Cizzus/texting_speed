@@ -1,19 +1,22 @@
 import tkinter as tk
+import random
+from tkinter import font
 from PIL import Image, ImageTk
 from fuzzywuzzy import fuzz
-from .instructions import instructions
 
 
 class MainPage(tk.Frame):
     TIME_LIMIT = 0.0
     START_TIME = 60.0
-    INSTRUCTIONS = instructions
+    START_COUNTER = 5
 
     def __init__(self, parent, controller):
         super().__init__(parent)
         # Timer
         self.limit = self.TIME_LIMIT
         self.seconds = self.START_TIME
+        self.start_counter_s = self.START_COUNTER
+        self.story_number = random.randint(1, 3)
 
         image = Image.open("./media/reset.png")
         image.thumbnail(size=(20, 20))
@@ -22,7 +25,7 @@ class MainPage(tk.Frame):
         # Labels
         label = tk.Label(self, text="Test Your Texting Speed!", font=("arial", 20))
         self.text = self.text_to_write()
-        self.text_label = tk.Label(self, text=self.INSTRUCTIONS, font=("arial", 10))
+        self.text_label = tk.Label(self, text="Text will be shown here!", font=("arial", 10))
         self.seconds_label = tk.Label(self, text=f"Time left: {self.seconds} s", font=("arial", 15))
 
         # Text window
@@ -41,14 +44,12 @@ class MainPage(tk.Frame):
         self.seconds_label.grid_configure(column=1, row=4, pady=10, sticky="e", padx=20)
 
     def start_time(self):
-        self.text_label.config(text=self.text)
-        self.text_window.config(state=tk.NORMAL)
-        self.update_time()
         self.start_button.config(text="Stop", command=self.stop_time)
         self.reset_button.config(state=tk.DISABLED)
+        self.start_counter()
 
     def stop_time(self):
-        self.text_label.config(text=self.INSTRUCTIONS)
+        self.text_label.config(text="Text will be shown here!")
         self.text_window.config(state=tk.DISABLED)
         self.limit = self.seconds
 
@@ -64,6 +65,7 @@ class MainPage(tk.Frame):
         self.start_button.config(text="Stop", command=self.stop_time)
 
     def reset_time(self):
+        self.start_counter_s = self.START_COUNTER
         self.start_button.config(state=tk.ACTIVE)
         self.text_window.config(state=tk.NORMAL)
         self.text_window.delete("1.0", "end")
@@ -78,7 +80,7 @@ class MainPage(tk.Frame):
         if self.seconds > self.limit:
             seconds_left = round(self.seconds, 1)
             self.seconds_label.configure(text=f"Time left: {seconds_left} s")
-            self.after(10, self.update_time)
+            self.after(100, self.update_time)
 
         elif round(self.seconds, 1) == 0.0:
             self.text_label.config(text=self.INSTRUCTIONS)
@@ -91,9 +93,23 @@ class MainPage(tk.Frame):
             self.start_button.config(state=tk.DISABLED)
             self.reset_button.config(state=tk.ACTIVE)
 
-    @staticmethod
-    def text_to_write() -> str:
-        with open("./text.txt", "r") as f:
+    def start_counter(self):
+        self.text_window.config(state=tk.NORMAL)
+        self.text_window.delete("1.0", "end")
+        custom_font = font.Font(family="Arial", size=60)
+        self.text_window.tag_config("custom_font", font=custom_font, justify="center")
+        self.text_window.insert(tk.END, f"{self.start_counter_s}", "custom_font")
+        self.start_counter_s -= 1
+        if self.start_counter_s >= 0:
+            self.after(1000, self.start_counter)
+        else:
+            self.text_window.delete("1.0", "end")
+            self.text_label.config(text=self.text)
+            self.update_time()
+
+    def text_to_write(self) -> str:
+        with open(f"./media/stories/story_{self.story_number}.txt", "r") as f:
             text = f.read()
+            print(len(text.split()))
 
         return text
