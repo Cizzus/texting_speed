@@ -1,8 +1,11 @@
+import os
 import tkinter as tk
+from tkinter import messagebox
 import random
 from tkinter import font
 from PIL import Image, ImageTk
 from fuzzywuzzy import fuzz
+from .database_config import Player, Result, session
 
 
 class MainPage(tk.Frame):
@@ -16,7 +19,8 @@ class MainPage(tk.Frame):
         self.limit = self.TIME_LIMIT
         self.seconds = self.START_TIME
         self.start_counter_s = self.START_COUNTER
-        self.story_number = random.randint(1, 3)
+
+        self.controller = controller
 
         image = Image.open("./media/reset.png")
         image.thumbnail(size=(20, 20))
@@ -74,6 +78,7 @@ class MainPage(tk.Frame):
         self.limit = self.TIME_LIMIT
         self.seconds_label.configure(text=f"Time left: {self.seconds} s", font=("arial", 15))
         self.start_button.config(text="Start", command=self.start_time)
+        self.text = self.text_to_write()
 
     def update_time(self):
         self.seconds -= 0.1
@@ -83,15 +88,17 @@ class MainPage(tk.Frame):
             self.after(100, self.update_time)
 
         elif round(self.seconds, 1) == 0.0:
-            self.text_label.config(text=self.INSTRUCTIONS)
-            text = self.text_window.get("1.0", "end")
-            words_per_min = len(text.split())
-            score = fuzz.ratio(self.text, text)
-            print(f"Words per minute: {int(words_per_min)}\nLevenshtein distance (score): {score}")
+            self.text_label.config(text="Text will be shown here!")
             self.text_window.config(state=tk.DISABLED)
             self.seconds_label.configure(text="0.0")
             self.start_button.config(state=tk.DISABLED)
             self.reset_button.config(state=tk.ACTIVE)
+
+            speed, score = self._result()
+            player_db = session.query(Player).filter_by(username=self.controller.USERNAME).first()
+            result = Result(player_id=player_db.id_, words_per_minute=speed, score=score)
+            session.add(result)
+            session.commit()
 
     def start_counter(self):
         self.text_window.config(state=tk.NORMAL)
@@ -107,9 +114,20 @@ class MainPage(tk.Frame):
             self.text_label.config(text=self.text)
             self.update_time()
 
-    def text_to_write(self) -> str:
-        with open(f"./media/stories/story_{self.story_number}.txt", "r") as f:
+    @staticmethod
+    def text_to_write() -> str:
+        stories = os.listdir("./media/stories")
+        story_to_write = random.choice(stories)
+        with open(f"./media/stories/{story_to_write}", "r") as f:
             text = f.read()
-            print(len(text.split()))
 
         return text
+
+    def _result(self) -> tuple:
+        text = self.text_window.get("1.0", "end")
+        words_per_min = len(text.split())
+        score = fuzz.ratio(self.text, text)
+        player = self.controller.USERNAME
+        message = f"{player} result:\nWords per minute: {int(words_per_min)}\nLevenshtein distance (score): {score}"
+        messagebox.showinfo("Result", message)
+        return words_per_min, score

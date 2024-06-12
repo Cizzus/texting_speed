@@ -13,6 +13,11 @@ class OptionsBar:
             command=lambda: root.show_frame(RecordsPage)
         )
 
+        file_menu.add_command(
+            label="Change player",
+            command=lambda: root.show_instructions()
+        )
+
         file_menu.add_separator()
 
         file_menu.add_command(

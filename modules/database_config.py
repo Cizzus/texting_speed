@@ -7,6 +7,9 @@ database_url = 'sqlite:///test.db'
 engine = create_engine(database_url)
 Base = declarative_base()
 
+Session = sessionmaker(bind=engine)
+session = Session()
+
 
 class Player(Base):
     __tablename__ = 'players_table'
@@ -22,5 +25,9 @@ class Result(Base):
 
     id_ = Column(Integer, primary_key=True)
     player_id = mapped_column(ForeignKey("players_table.id_"))
-    words_per_minute = Column(Integer, )
+    words_per_minute = Column(Integer)
+    score = Column(Integer)
     player = relationship("Player", back_populates="result_id")
+
+
+Base.metadata.create_all(engine)

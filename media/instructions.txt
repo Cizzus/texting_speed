@@ -1,0 +1,7 @@
+1. Enter your desired username and click "Submit" to track your records.
+2. After submitting your username, you will be admitted to the main page.
+3. Click the "Start" button. The counter will begin after a 5-second delay.
+4. A text will appear above the typing window, and your 60-second countdown will begin.
+5. During the 60 seconds, rewrite the text above as quickly and accurately as you can.
+
+Good luck!

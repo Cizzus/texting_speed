@@ -3,11 +3,15 @@ import tkinter as tk
 from modules.options_bar import OptionsBar
 from modules.main_page import MainPage
 from modules.records_page import RecordsPage
+from modules.instructions import WelcomeWindow
 
 
 class Windows(tk.Tk):
+    USERNAME = "Unknown"
+
     def __init__(self, menubar, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.welcome_window = WelcomeWindow(self)
         self.wm_title("Test Application")
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -29,6 +33,9 @@ class Windows(tk.Tk):
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
+
+    def show_instructions(self):
+        WelcomeWindow(self)
 
 
 if __name__ == "__main__":
