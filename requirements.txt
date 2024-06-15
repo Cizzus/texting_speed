@@ -1,5 +1,8 @@
 fuzzywuzzy==0.18.0
+greenlet==3.0.3
 Levenshtein==0.25.1
 pillow==10.3.0
 python-Levenshtein==0.25.1
 rapidfuzz==3.9.3
+SQLAlchemy==2.0.30
+typing_extensions==4.12.2
