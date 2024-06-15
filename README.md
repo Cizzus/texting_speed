@@ -22,7 +22,7 @@ This project is a Texting Speed Test application built with Python, Tkinter for 
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/Cizzus/texting_speed.git
-   cd texting_speed_test
+   cd texting_speed
    ```
 
 2. **Install the required packages:**
