@@ -1,6 +1,6 @@
+import re
 import tkinter as tk
 from tkinter import messagebox
-import re
 from .database_config import Player, session
 
 
@@ -15,10 +15,12 @@ class WelcomeWindow(tk.Toplevel):
         self.username_label = tk.Label(self, text="Enter username: ", font=("arial", 16, "bold"))
         self.username_entry = tk.Entry(self, font=("arial", 16))
 
-        self.submit_username = tk.Button(self, text="Submit", font=("arial", 14, "bold"), command=self.submit_username)
+        self.submit_username = tk.Button(self, text="Submit", font=("arial", 14, "bold"), command=self._submit_username)
 
+        # Protects window from closing on click.
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
+        # Protects from starting the test with opened WelcomeWindow.
         self.grab_set()
         self.transient(root)
 
@@ -29,9 +31,13 @@ class WelcomeWindow(tk.Toplevel):
 
         self.main_window = root
 
-    def submit_username(self):
+    def _submit_username(self):
+        """
+        Function checks if the provided username is correct due to the given rules (consist of letters and number,
+        length 3<len(username)<30). Also, if the username do not exist in the database, it is added.
+        """
         username = self.username_entry.get()
-        if re.match(r"^[a-zA-Z0-9]*$", username) and len(username) <= 30:
+        if re.match(r"^[a-zA-Z0-9]*$", username) and (len(username) <= 30 & len(username) > 3):
             if session.query(Player).filter_by(username=username).first():
                 self.main_window.USERNAME = username
                 self.destroy()
@@ -42,7 +48,8 @@ class WelcomeWindow(tk.Toplevel):
                 session.commit()
                 self.destroy()
         else:
-            messagebox.showwarning("Incorrect Username", "Provide username only with letters and numbers.")
+            messagebox.showwarning("Incorrect Username", "Provide username only with letters and numbers.\n"
+                                                         "Username length must be longer than 3 and shorter than 30 characters.")
 
     @staticmethod
     def on_closing():
@@ -50,7 +57,10 @@ class WelcomeWindow(tk.Toplevel):
         messagebox.showwarning("Input Required", "Please enter some text before proceeding.")
 
     @staticmethod
-    def instructions_text():
+    def instructions_text() -> str:
+        """
+        Returns instructions for the test. Instructions are taken from media/instructions.txt
+        """
         with open("./media/instructions.txt", "r") as f:
             file = f.read()
 

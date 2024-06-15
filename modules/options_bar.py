@@ -1,5 +1,5 @@
 import tkinter as tk
-from .records_page import RecordsPage
+from .records_frame import RecordsFrame
 
 
 class OptionsBar:
@@ -10,7 +10,7 @@ class OptionsBar:
 
         file_menu.add_command(
             label="Records",
-            command=lambda: root.show_frame(RecordsPage)
+            command=lambda: root.show_frame(RecordsFrame)
         )
 
         file_menu.add_command(

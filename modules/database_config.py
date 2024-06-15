@@ -21,7 +21,7 @@ class Player(Base):
 
 
 class Result(Base):
-    __tablename__ = 'results'
+    __tablename__ = 'results_table'
 
     id_ = Column(Integer, primary_key=True)
     player_id = mapped_column(ForeignKey("players_table.id_"))
