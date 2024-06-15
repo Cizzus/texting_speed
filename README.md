@@ -92,57 +92,69 @@ Base.metadata.create_all(engine)
 
 ```python
 import tkinter as tk
-from tkinter import Frame, Label, Scrollbar, Canvas
+from modules.options_bar import OptionsBar
+from modules.main_frame import MainFrame
+from modules.records_frame import RecordsFrame
+from modules.welcome_window import WelcomeWindow
 
-def create_gui(data):
-    root = tk.Tk()
-    root.title("SQLAlchemy Joined Tables in Tkinter")
 
-    frame = Frame(root)
-    frame.grid(row=0, column=0, sticky='nsew')
+class Windows(tk.Tk):
+    """
+    Main window class that inherits tkinter.Tk object methods and attributes. This is the main program window
+    which holds frames, option bars and welcome window objects.
+    """
+    USERNAME = "Unknown"
 
-    canvas = Canvas(frame)
-    canvas.grid(row=0, column=0, sticky='nsew')
+    def __init__(self, menubar, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Initiates welcome window where user input for username required
+        self.welcome_window = WelcomeWindow(self)
+        # Menu bar for more options initiated
+        menubar(self)
 
-    scrollbar = Scrollbar(frame, orient='vertical', command=canvas.yview)
-    scrollbar.grid(row=0, column=1, sticky='ns')
+        self.wm_title("Typing Speed Test")
 
-    scrollable_frame = Frame(canvas)
+        # Initiate main frame
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
 
-    scrollable_frame.bind(
-        "<Configure>",
-        lambda e: canvas.configure(
-            scrollregion=canvas.bbox("all")
-        )
-    )
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
 
-    canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
-    canvas.configure(yscrollcommand=scrollbar.set)
+        # Dictionary to append main page and records page frames
+        self.frames = {}
 
-    # Configure the main window to adjust with resizing
-    root.grid_rowconfigure(0, weight=1)
-    root.grid_columnconfigure(0, weight=1)
-    frame.grid_rowconfigure(0, weight=1)
-    frame.grid_columnconfigure(0, weight=1)
+        for frame in (MainFrame, RecordsFrame):
+            # Create frame instance from frame object
+            new_frame = frame(container, self)
 
-    # Add table headers
-    headers = ["Player ID", "Username", "Created At", "Result ID", "Words Per Minute"]
-    for col_num, header in enumerate(headers):
-        label = Label(scrollable_frame, text=header, font=('Arial', 12, 'bold'))
-        label.grid(row=0, column=col_num, padx=10, pady=5, sticky='nsew')
+            # Saving different frame objects as a key and respectively frame instance object as a value.
+            self.frames[frame] = new_frame
+            new_frame.grid(row=0, column=0)
 
-    # Add table data
-    for row_num, (player, result) in enumerate(data, start=1):
-        row_data = [player.id_, player.username, player.created_at, result.id_, result.words_per_minute]
-        for col_num, cell in enumerate(row_data):
-            label = Label(scrollable_frame, text=cell, font=('Arial', 12))
-            label.grid(row=row_num, column=col_num, padx=10, pady=5, sticky='nsew')
+        # Show main frame when program starts
+        self.show_frame(MainFrame)
 
-    # Configure columns to expand
-    for i in range(len(headers)):
-        scrollable_frame.grid_columnconfigure(i, weight=1)
+    def show_frame(self, cont):
+        """
+        Function changes frame view.
+        cont: tk.Frame object.
+        """
+        frame = self.frames[cont]
+        frame.tkraise()
 
-    root.mainloop()
+    def show_instructions(self):
+        """
+        Function initiates welcome window when called. This window contains instructions and user input to provide
+        username.
+        """
+        WelcomeWindow(self)
+
+
+# Initiates program
+if __name__ == "__main__":
+    testObj = Windows(OptionsBar)
+    testObj.mainloop()
 ```
 
 ## License
