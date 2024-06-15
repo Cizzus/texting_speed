@@ -64,7 +64,7 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime, Foreign
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-database_url = 'mysql+mysqlconnector://your_username:your_password@your_host/your_database'
+database_url = 'sqlite:///your_db.db'
 engine = create_engine(database_url)
 Base = declarative_base()
 
